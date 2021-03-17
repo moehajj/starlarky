@@ -305,4 +305,29 @@ public class VersionedLarkyEngineImplTest {
     assertEquals(expResult3, result3);
   }
 
+  @Test
+  public void testNoopRedactor_get_ok() throws Exception {
+
+    // Expect
+    String expResult = "This is my Vault input";
+
+    // Setup
+    String vaultGetScript =
+            "def process(input, ctx):\n" +
+                    "    return vault.get(input,\"\")\n" +
+                    "output = process(input,ctx)";
+
+    Bindings noopBindings = new SimpleBindings();
+    noopBindings.put("input", "This is my Vault input");
+    noopBindings.put("ctx", new HashMap<>());
+    noopBindings.put("vault", new NoopLarkyRedactor());
+
+    // Execute
+    engine.setBindings(noopBindings,ScriptContext.ENGINE_SCOPE);
+    Object output = engine.executeScript(vaultGetScript,"output");
+
+    // Assert
+    assertEquals(expResult, output.toString());
+  }
+
 }
